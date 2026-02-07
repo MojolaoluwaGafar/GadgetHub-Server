@@ -4,8 +4,8 @@ const bcrypt = require("bcrypt")
 const { sendWelcomeEmail, sendResetPasswordMail } = require("../Utils/sendEmail")
 
 //Generate JsonWebToken
-const generateToken = ({userId, email })=>{
-    const token = JWT.sign({ id : userId, email}, process.env.JWT_SECRET, {
+const generateToken = ({userId, email, role })=>{
+    const token = JWT.sign({ id : userId, email, role}, process.env.JWT_SECRET, {
         expiresIn : "15m"
     })
     console.log(token)
@@ -61,7 +61,7 @@ const signup = async (req, res) => {
         })
         await user.save()
 
-        const token = generateToken({ userId : user._id, email : user.email})
+        const token = generateToken({ userId : user._id, email : user.email, role : user.role})
 
         const homePageUrl = `${process.env.FRONTEND_URL}`
         await sendWelcomeEmail({
@@ -77,7 +77,7 @@ const signup = async (req, res) => {
         // })
         // }
 
-        res.status(201).json({ success : true, message : "User created successfully", token, user : { id : user._id, firstName: user.firstName, lastName : user.lastName, email : user.email, phoneNumber : user.phoneNumber}})
+        res.status(201).json({ success : true, message : "User created successfully", token, user : { id : user._id, firstName: user.firstName, lastName : user.lastName, email : user.email, phoneNumber : user.phoneNumber, role : user.role}})
     } catch (error) {
         // if (error.code === 11000 ) {
         //     return res.status(400).json({
@@ -116,7 +116,7 @@ const signin = async (req,res)=>{
         }
         
         //create session token
-        const token = generateToken({userId : user._id, email : user.email})
+        const token = generateToken({userId : user._id, email : user.email, role : user.role})
 
         res.status(200).json({
             success : true,
@@ -127,7 +127,8 @@ const signin = async (req,res)=>{
                 firstName: user.firstName, 
                 lastName : user.lastName, 
                 email : user.email, 
-                phoneNumber : user.phoneNumber
+                phoneNumber : user.phoneNumber,
+                role : user.role
             }
         })
 
@@ -180,35 +181,37 @@ const forgotPassword = async (req,res) => {
 }
 
 const resetPassword = async (req, res) => {
-    console.log("Password reset route hit");
-    const { password } = req.body
-    console.log(req.body);
-    const { token } = req.params
-    console.log(token);
+  const { password } = req.body;
+  const { token } = req.params;
 
-//   console.log("Password reset route hit at:", req.originalUrl);
-//   console.log("Token received:", req.params.token);
-//   console.log("Body received:", req.body);
-
-
-    try {
-        if (!password) {
-            return res.status(400).json({ success : false, message : "Please provide a password"})
-        }
-         if (!token) {
-            return res.status(400).json({ success : false, message : "Invalid or expired token"})
-        }
-        const decoded = JWT.verify(token, process.env.JWT_SECRET)
-        const userId = decoded.id
-        console.log("Received token :", token);
-        const hashedPassword = await bcrypt.hash(password, 12)
-        await USER.findByIdAndUpdate(userId, { password : hashedPassword, resetToken : null, resetTokenExpiry : null })
-        return res.status(200).json({ message : "Password reset successful"})
-    } catch (error) {
-        console.log(error.message);
-        return res.status(400).json({ message : "Invalid or expired token"})
+  try {
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Please provide a password" });
     }
-    
-}
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const user = await USER.findById(userId);
+    if (!user || user.resetToken !== token || Date.now() > user.resetTokenExpiry) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    return res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(400).json({ message: "Invalid or expired token" });
+  }
+};
+
 module.exports = {signup, signin, forgotPassword, resetPassword }
 

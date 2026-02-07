@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const auth = (req, res, next) => {
+exports.auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1];
 
@@ -18,5 +18,22 @@ const auth = (req, res, next) => {
     res.status(401).json({ message: "Token is not valid" });
   }
 };
+exports.authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "You do not have permission to perform this action" });
+    }
+    next();
+  };
+};
+exports.isAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({
+      message: "Admin access only",
+    });
+  }
+  next();
+};
 
-module.exports = auth;

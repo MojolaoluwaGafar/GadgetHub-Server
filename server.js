@@ -22,6 +22,7 @@ app.get("/", (req,res)=>{
 })
 
 app.use("/api/user/auth", userAuthRouter)
+app.use("/api/admin", require("./Routes/adminRoute"));
 
 const startServer = async () => {
     try {
