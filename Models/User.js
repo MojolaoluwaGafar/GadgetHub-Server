@@ -29,6 +29,13 @@ const userSchema = new Schema({
         type : String,
         required : true,
     },
+    addresses: [{
+    label: { type: String, default: "Home" },
+    address: String,
+    state: String,
+    city: String,
+    isDefault: { type: Boolean, default: false } }
+    ],
     role: {
     type: String,
     enum: ["user", "admin"],

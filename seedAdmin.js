@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const USER = require("./Models/User"); // adjust path if needed
+const USER = require("./Models/User");
 require("dotenv").config();
 
 async function seedAdmin() {

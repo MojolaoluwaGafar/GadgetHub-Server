@@ -214,5 +214,56 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = {signup, signin, forgotPassword, resetPassword }
+const addAddress = async (req, res) => {
+  const { address, city, state } = req.body;
+
+  if (!address || !city || !state) {
+    return res.status(400).json({ message: "Incomplete address" });
+  }
+
+  const user = await USER.findById(req.user._id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const isFirst = user.addresses.length === 0;
+
+  user.addresses.push({
+    address,
+    city,
+    state,
+    isDefault: isFirst,
+  });
+
+  await user.save();
+
+  res.status(200).json({ success: true, user });
+};
+
+const getAddress= async (req,res) => {
+  const user = await USER.findById(req.user._id);
+  res.status(200).json({ user });
+}
+
+
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id; 
+    const user = await USER.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    await USER.findByIdAndDelete(userId);
+
+    return res.status(200).json({ success: true, message: "Account deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Failed to delete account", error: error.message });
+  }
+};
+
+module.exports = {signup, signin, forgotPassword, resetPassword, addAddress, getAddress, deleteAccount }
 

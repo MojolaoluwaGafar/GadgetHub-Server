@@ -4,7 +4,7 @@ const USER = require("../Models/User");
 
 const createOrder = async (req, res) => {
   try {
-    const { items, deliveryMethod, paymentMethod, totalAmount } = req.body;
+    const { items, deliveryMethod, paymentMethod, totalAmount, customer } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -25,6 +25,16 @@ const createOrder = async (req, res) => {
     const estimatedDelivery = new Date(createdAt);
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 1);
 
+    if (customer.saveAddress && customer.address && customer.city && customer.state) {
+     const isDefault = fullUser.addresses.length === 0;
+     fullUser.addresses.push({
+     address: customer.address,
+     city: customer.city,
+     state: customer.state,
+     isDefault
+  });
+  await fullUser.save();
+}
 
     const order = await ORDER.create({
       orderNumber,  
@@ -33,7 +43,10 @@ const createOrder = async (req, res) => {
         firstName: fullUser.firstName,
         lastName: fullUser.lastName,
         email: fullUser.email,
-        phone: fullUser.phoneNumber
+        phone: fullUser.phoneNumber,
+        address: customer.address || "",
+        city: customer.city || "",
+        state: customer.state || ""
       },
       items,
       deliveryMethod,
