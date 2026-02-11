@@ -15,7 +15,7 @@ exports.auth = async (req, res, next) => {
     if (!user) return res.status(401).json({ message: "Unauthorized. User not found." });
 
     req.user = user;
-    console.log("Decoded token:", decoded);
+    // console.log("Decoded token:", decoded);
     next();
   } catch (err) {
     console.error("Token error:", err);

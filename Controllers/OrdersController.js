@@ -57,7 +57,7 @@ const createOrder = async (req, res) => {
       deliveryDate: estimatedDelivery,
 
     });
-    console.log(order);
+    // console.log(order);
     
 
     res.status(201).json({ message: "Order created successfully", order });
@@ -98,11 +98,11 @@ const getUserOrders = async (req, res) => {
   try {
     if (req.user.role !== "user") return res.status(403).json({ message: "Forbidden" });
 
-    console.log("Fetching orders for user:", req.user._id); // debug
+    // console.log("Fetching orders for user:", req.user._id); // debug
 
     const orders = await ORDER.find({ user: req.user._id }).sort({ createdAt: -1 });
 
-    console.log("Orders found:", orders.length); // debug
+    // console.log("Orders found:", orders.length); // debug
 
     res.json({ orders });
   } catch (error) {

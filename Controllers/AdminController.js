@@ -31,7 +31,7 @@ exports.addProduct = async (req, res) => {
         public_id: req.file?.public_id || req.file?.filename,
       },
     });
-    console.log(product);
+    // console.log(product);
     
 
     res.status(201).json({ message: "Product added successfully", product });
@@ -74,7 +74,7 @@ exports.updateProduct = async (req, res) => {
     if (req.body.specifications) {
       product.specifications = JSON.parse(req.body.specifications);
     }
-    console.log(product);
+    // console.log(product);
     
     await product.save();
     res.json({ message: "Product updated successfully", product });

@@ -9,7 +9,7 @@ const generateToken = (user) => {
   const token = JWT.sign({ id: _id, email, role }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  console.log(token);
+//   console.log(token);
   return token;
 };
 
@@ -23,10 +23,10 @@ const generateToken = (user) => {
 //save - user details - into DB
 
 const signup = async (req, res) => {
-    console.log("Incoming signup request")
+    // console.log("Incoming signup request")
 
     const { firstName, lastName, email, phoneNumber, password } = req.body
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
         //validate data coming from the request
@@ -100,10 +100,10 @@ const signup = async (req, res) => {
 //bcrypt.compare
 //create session token
 const signin = async (req,res)=>{
-    console.log("Incoming Sign in request");
+    // console.log("Incoming Sign in request");
 
     const {email, password} = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     try {
         //find user in db
         const user = await USER.findOne({email})
@@ -144,9 +144,9 @@ const signin = async (req,res)=>{
 }
 
 const forgotPassword = async (req,res) => {
-    console.log("forgot password route hit");
+    // console.log("forgot password route hit");
     const { email } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
 
     //validate email and find user
     try {
