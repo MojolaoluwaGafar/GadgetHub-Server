@@ -14,7 +14,7 @@ const adminRouter = require("./Routes/adminRoute")
 //middlewares
 app.use(express.json())
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://gadget-hub-psi.vercel.app"],
     credentials : true
 }))
 
