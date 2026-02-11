@@ -11,7 +11,7 @@ exports.auth = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-     const user = await USER.findById(decoded.id); // make sure JWT has "id"
+     const user = await USER.findById(decoded.id);
     if (!user) return res.status(401).json({ message: "Unauthorized. User not found." });
 
     req.user = user;
